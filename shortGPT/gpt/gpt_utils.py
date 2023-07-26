@@ -5,6 +5,7 @@ from time import time,sleep
 import re
 import tiktoken
 import json
+import requests
 from shortGPT.config.api_db import get_api_key
 
 def num_tokens_from_messages(texts, model="gpt-3.5-turbo-0301"):
@@ -56,7 +57,8 @@ def open_file(filepath):
         return infile.read()
 
 def gpt3Turbo_completion(chat_prompt="", system="You are an AI that can give the answer to anything", temp=0.7, model="gpt-3.5-turbo",max_tokens=1000, remove_nl=True, conversation=None):
-    openai.api_key = get_api_key("OPENAI")
+    # openai.api_key = get_api_key("OPENAI")
+
     max_retry = 5
     retry = 0
     while True:
@@ -68,11 +70,33 @@ def gpt3Turbo_completion(chat_prompt="", system="You are an AI that can give the
                 {"role": "system", "content": system},
                 {"role": "user", "content": chat_prompt}
                 ]
-            response = openai.ChatCompletion.create(
-                model=model,
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temp)
+            # response = openai.ChatCompletion.create(
+            #     model=model,
+            #     messages=messages,
+            #     max_tokens=max_tokens,
+            #     temperature=temp)
+
+            domain = "staging.md.ai"
+            api_key = '8b80c4ca0f05876d561a34622395e487'
+
+            data= {
+            "model": model,
+            "messages": messages,
+            "temperature": temp,
+            "top_p": 1,
+            "n": 1,
+            "stop": None,
+            "max_tokens": max_tokens,
+            "presence_penalty": 0,
+            "frequency_penalty": 0,
+            "logit_bias": None
+            }
+            response = requests.post(f'https://{domain}/api/openai/chat/completions', json=data, headers={
+              'Content-Type': 'application/json',
+              "x-access-token": api_key
+            }) 
+            response = json.loads(response.text)["response"]
+
             text = response['choices'][0]['message']['content'].strip()
             if remove_nl:
                 text = re.sub('\s+', ' ', text)

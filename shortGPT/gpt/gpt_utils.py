@@ -57,7 +57,7 @@ def open_file(filepath):
         return infile.read()
 
 def gpt3Turbo_completion(chat_prompt="", system="You are an AI that can give the answer to anything", temp=0.7, model="gpt-3.5-turbo",max_tokens=1000, remove_nl=True, conversation=None):
-    # openai.api_key = get_api_key("OPENAI")
+    api_key = get_api_key("OPENAI")
 
     max_retry = 5
     retry = 0
@@ -77,7 +77,6 @@ def gpt3Turbo_completion(chat_prompt="", system="You are an AI that can give the
             #     temperature=temp)
 
             domain = "staging.md.ai"
-            api_key = '8b80c4ca0f05876d561a34622395e487'
 
             data= {
             "model": model,
